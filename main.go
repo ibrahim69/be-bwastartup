@@ -3,7 +3,6 @@ package main
 import (
 	"bwastartup/handler"
 	"bwastartup/user"
-	"fmt"
 	"log"
 
 	"github.com/gin-gonic/gin"
@@ -25,39 +24,12 @@ func main() {
 	userRepository := user.NewRepository(db)
 	userService := user.NewService(userRepository)
 
-	input := user.LoginInput{
-		Email:    "tVa3Y2@example.com",
-		Password: "12345678",
-	}
-	user, err := userService.LoginInput(input)
-
-	if err != nil {
-		fmt.Println("Terjadi Kesalahan")
-		fmt.Println(err.Error())
-	}
-
-	fmt.Println(user.Email)
-	fmt.Println(user.Name)
-
 	userHandler := handler.NewUserHandler(userService)
 
 	router := gin.Default()
 	api := router.Group("/api/v1")
 
 	api.POST("/users", userHandler.RegisterUser)
+	api.POST("/sessions", userHandler.LoginUser)
 	router.Run()
-
-	// userInput := user.RegisterUserInput{}
-	// userInput.Name = "Test Simpan dari service"
-	// userInput.Occupation = "Programmer"
-	// userInput.Email = "tV3Y2@example.com"
-	// userInput.Password = "12345678"
-
-	// userService.RegisterUser(userInput)
-
-	// input dari user
-	// handler, mapping input dari user -> struct input
-	// service : melakukan mapping dari struct input ke struct
-	// repository
-	// db
 }

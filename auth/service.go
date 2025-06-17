@@ -1,10 +1,14 @@
 package auth
 
-import "github.com/golang-jwt/jwt"
+import (
+	"errors"
+
+	"github.com/golang-jwt/jwt"
+)
 
 type Service interface {
 	GenerateToken(userID int) (string, error)
-	ValidateToken(token string) (int, error)
+	ValidateToken(token string) (*jwt.Token, error)
 }
 
 type jwtService struct {
@@ -27,22 +31,24 @@ func (s *jwtService) GenerateToken(userID int) (string, error) {
 	return signedToken, nil
 }
 
-func (s *jwtService) ValidateToken(encodedToken string) (int, error) {
-	// token, err := jwt.Parse(encodedToken, func(t *jwt.Token) (interface{}, error) {
-	// 	_, ok := t.Method.(*jwt.SigningMethodHMAC)
-	// 	if !ok {
-	// 		return nil, err
-	// 	}
-	// 	return []byte(SECRET_KEY), nil
-	// })
-	// if err != nil {
-	// 	return 0, err
-	// }
+func (s *jwtService) ValidateToken(encodedToken string) (*jwt.Token, error) {
+	token, err := jwt.Parse(encodedToken, func(t *jwt.Token) (interface{}, error) {
+		_, ok := t.Method.(*jwt.SigningMethodHMAC)
+		if !ok {
+			return nil, errors.New("Invalid token")
+		}
+		return []byte(SECRET_KEY), nil
+	})
+
+	if err != nil {
+		return token, err
+	}
+
+	return token, err
 	// claim, ok := token.Claims.(jwt.MapClaims)
 	// if ok && token.Valid {
 	// 	userID := int(claim["user_id"].(float64))
 	// 	return userID, nil
 	// }
 	// return 0, err
-	return 0, nil
 }
